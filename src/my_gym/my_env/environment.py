@@ -1,7 +1,7 @@
 import numpy as np  # type: ignore
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from config import Config
+from .config import Config
 
 class Environment:
     def __init__(self, config):
@@ -100,7 +100,8 @@ class Environment:
 
         agent_count = [0] * self.n_agents
         for i in range(self.total_agents):
-            agent_count[self.positions[i]['agent']] += 1
+            if i not in self.captured_agents:
+                agent_count[self.positions[i]['agent']] += 1
         self.updated_agent_count = agent_count
 
         for i in range(self.n_agents):
@@ -108,10 +109,18 @@ class Environment:
                 self.eliminated_record[i] = True
                 print(f"Agent {i + 1} eliminated")
 
-        if max(agent_count) == self.total_agents:
-            self.done = True
-            self.winner = agent_count.index(max(agent_count))
-
+        if self.config.capture:
+            if max(agent_count) == self.total_agents:
+                self.done = True
+                self.winner = agent_count.index(max(agent_count))
+                print(f"Agent {self.winner} wins")
+        else:
+            for i in range(self.n_agents):
+                if self.eliminated_record[i]:
+                    self.done = True
+                    self.winner = self.prey_predator_combo[i]
+                    print(f"Agent {self.winner} wins")
+                    
     def reward_update(self):
         """Update the rewards for each agent."""
         self.reward = [0] * self.n_agents
@@ -167,7 +176,8 @@ class Environment:
     def step(self, action_list, timestep):
         """Perform a step in the environment."""
         for i in range(self.total_agents):
-            self.action_update(action_list[i], i)
+            if i not in self.captured_agents:
+                self.action_update(action_list[i], i)
         self.capture_check()
         self.reward_update()
         if self.config.animation:
