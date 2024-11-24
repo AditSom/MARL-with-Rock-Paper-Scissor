@@ -27,6 +27,7 @@ class Config:
         # Load and override parameters from a YAML file if provided
         if yaml_file:
             self.load_from_yaml(yaml_file)
+        self.n_actions = 5
 
     def load_from_yaml(self, yaml_file):
         with open(yaml_file, 'r') as file:

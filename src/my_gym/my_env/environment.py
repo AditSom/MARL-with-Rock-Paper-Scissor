@@ -182,12 +182,13 @@ class Environment:
         self.reward_update()
         if self.config.animation:
             self.store_positions.append(self.positions[:])
-        if timestep == self.config.time_step:
-            self.done = True
+        # if timestep == self.config.time_step:
+        #     self.done = True
         if self.config.track_grid is not False and timestep % self.config.track_grid == 0:
             self.update_grid()
         if self.done and self.config.animation:
             self.render_entire_episode()
+        return self.positions, self.reward, self.done
 
 if __name__ == "__main__":
     config = "config.yaml"
