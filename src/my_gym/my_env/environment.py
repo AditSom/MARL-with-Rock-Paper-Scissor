@@ -2,6 +2,7 @@ import numpy as np  # type: ignore
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from .config import Config
+import copy
 
 class Environment:
     def __init__(self, config):
@@ -188,7 +189,7 @@ class Environment:
             self.update_grid()
         if self.done and self.config.animation:
             self.render_entire_episode()
-        return self.positions, self.reward, self.done
+        return copy.deepcopy(self.positions), copy.deepcopy(self.reward), copy.deepcopy(self.done)
 
 if __name__ == "__main__":
     config = "config.yaml"

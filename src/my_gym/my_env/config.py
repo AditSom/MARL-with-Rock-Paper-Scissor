@@ -5,7 +5,7 @@ class Config:
         # Default configuration
         self.grid_size = 10  # Size of the grid (10x10)
         self.agents = [3, 2]  # Number of agents for each type
-        self.prey_predator_combo = {0: 1, 1: 0}  # Predator-prey relationships
+        self.prey_predator_combo = {0: 1, 1: None}  # Predator-prey relationships
         self.reward = {
             'win': 10,          # Reward for winning
             'lose': -10,        # Penalty for losing

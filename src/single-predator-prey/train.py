@@ -21,6 +21,7 @@ def flatten_positions(positions):
     flattened_positions = [[d['agent'],d['position'][0],d['position'][1]] for d in positions]
     flatten_positions = [item for sublist in flattened_positions for item in sublist]
     return flatten_positions
+
 for episode in range(num_episodes):
     total_rewards = [0] * env.n_agents
     steps = 0
@@ -31,29 +32,34 @@ for episode in range(num_episodes):
         counter = 0
         actions = []
         prev_state = copy.deepcopy(env.positions)
+
         for i in range(env.n_agents):
             agent = agents[i]
             for j in range(env.agents[i]):
-                state = copy.deepcopy(env.positions)
-                state[counter]['agent'] = 4
-                actions.append(agent.select_action(flatten_positions(state)))
-                counter += 1
+                if counter not in env.captured_agents:
+                    state = copy.deepcopy(env.positions)
+                    state[counter]['agent'] = 4
+                    actions.append(agent.select_action(flatten_positions(state)))
+                    counter += 1
         next_state, rewards, done = env.step(actions,steps)
+
         if done==True: done = 1 
         else: done = 0
         counter = 0
+
         for i in range(env.n_agents):
             agent = agents[i]
             for j in range(env.agents[i]):
                 # dont use store_transition
-                state = copy.deepcopy(prev_state)
-                temp_next_state = copy.deepcopy(next_state)
-                state[counter]['agent'] = 4
-                temp_next_state[counter]['agent'] = 4
-                state = flatten_positions(state)
-                temp_next_state = flatten_positions(temp_next_state)
-                agent.update_q_network((state, actions[counter], rewards[i], temp_next_state, done))
-                counter += 1
+                if counter not in env.captured_agents:
+                    state = copy.deepcopy(prev_state)
+                    temp_next_state = copy.deepcopy(next_state)
+                    state[counter]['agent'] = 4
+                    temp_next_state[counter]['agent'] = 4
+                    state = flatten_positions(state)
+                    temp_next_state = flatten_positions(temp_next_state)
+                    agent.update_q_network((state, actions[counter], rewards[i], temp_next_state, done))
+                    counter += 1
         state = next_state
         for i in range(env.n_agents):
             total_rewards[i] += rewards[i]
