@@ -1,8 +1,7 @@
-import torch
 import random
 import numpy as np
 from collections import deque
-from model import DQN, Agent
+from .model import DQN, Agent
 from my_gym import Config, Environment
 import matplotlib.pyplot as plt
 import copy

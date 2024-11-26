@@ -1,7 +1,7 @@
-import numpy as np  # type: ignore
+import numpy as np  
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from config import Config
+from .config import Config
 import copy
 
 class Environment:
