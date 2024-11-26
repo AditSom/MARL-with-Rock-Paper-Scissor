@@ -1,4 +1,3 @@
-
 import torch
 import random
 import numpy as np
@@ -8,101 +7,134 @@ from my_gym import Config, Environment
 import matplotlib.pyplot as plt
 import copy
 import tqdm
-config = Config("config.yaml")
-env = Environment(config)
-agents = []
-for env_agent in range(env.n_agents):
-    # allot a model for each agent
-    agents.append(Agent(env, config))
-num_episodes = 1000
-rewards_per_episode = []
-steps_per_episode = []
+
+
+# Helper function to flatten positions
 def flatten_positions(positions):
-    flattened_positions = [[d['agent'],d['position'][0],d['position'][1]] for d in positions]
-    flatten_positions = [item for sublist in flattened_positions for item in sublist]
-    return flatten_positions
+    return [
+        feature for position in positions 
+        for feature in [position['agent'], position['position'][0], position['position'][1]]
+    ]
 
-for episode in range(num_episodes):
-    total_rewards = [0] * env.n_agents
-    steps = 0
-    done = False
-    env = Environment(config)
-    env.render()
-    while steps < 500 and not done:
-        counter = 0
-        actions = []
-        prev_state = copy.deepcopy(env.positions)
+class training:
+    def __init__(self, config, env):
+        self.config = config
+        self.env = env
+        self.agents = [Agent(env, config) for _ in range(env.n_agents)]
+        self.num_episodes = config.num_episodes
+        self.max_steps = config.max_steps
+        self.rewards_per_episode = []
+        self.steps_per_episode = []
+        self.train()
 
-        for i in range(env.n_agents):
-            agent = agents[i]
-            for j in range(env.agents[i]):
-                if counter not in env.captured_agents:
-                    state = copy.deepcopy(env.positions)
-                    state[counter]['agent'] = 4
-                    actions.append(agent.select_action(flatten_positions(state)))
-                    counter += 1
-        next_state, rewards, done = env.step(actions,steps)
-
-        if done==True: done = 1 
-        else: done = 0
-        counter = 0
-
-        for i in range(env.n_agents):
-            agent = agents[i]
-            for j in range(env.agents[i]):
-                # dont use store_transition
-                if counter not in env.captured_agents:
-                    state = copy.deepcopy(prev_state)
-                    temp_next_state = copy.deepcopy(next_state)
-                    state[counter]['agent'] = 4
-                    temp_next_state[counter]['agent'] = 4
-                    state = flatten_positions(state)
-                    temp_next_state = flatten_positions(temp_next_state)
-                    agent.update_q_network((state, actions[counter], rewards[i], temp_next_state, done))
-                    counter += 1
-        state = next_state
-        for i in range(env.n_agents):
-            total_rewards[i] += rewards[i]
-        steps += 1
-    for env_agent in range(env.n_agents):
-        agent = agents[env_agent]
-        agent.update_target_network()
-
-    for i in range(env.n_agents):
-        agent = agents[i]
-        if agent.epsilon > agent.epsilon_min:
-            agent.epsilon *= agent.epsilon_decay
-
-    rewards_per_episode.append(total_rewards)
-    steps_per_episode.append(steps)
-
-    for i in range(env.n_agents):
-        agent = agents[i]
+    def get_action(self):
+        self.actions = []
+        for i, agent in enumerate(self.agents):
+                    for agent_idx in range(self.env.agents[i]):
+                        if agent_idx not in self.env.captured_agents:
+                            state = copy.deepcopy(self.env.positions)
+                            state[agent_idx]['agent'] = 4
+                            self.actions.append(agent.select_action(flatten_positions(state)))
+        return self.actions
     
-    # Print rewards  and steps per agent
-    if episode % 100 == 0:
-        for i in range(env.n_agents):
-            print(f"Episode {episode + 1}, Agent {i + 1}: Total Reward: {total_rewards[i]}, Steps: {steps},{done}")
-            # Plot the learning process
-    env.reset()
-plt.figure(figsize=(12, 5))
+    def train_agent(self, prev_state, actions, rewards, next_state, done):
+        for i, agent in enumerate(self.agents):
+                    for agent_idx in range(self.env.agents[i]):
+                        if agent_idx not in self.env.captured_agents:
+                            state = copy.deepcopy(prev_state)
+                            next_state_copy = copy.deepcopy(next_state)
+                            state[agent_idx]['agent'] = 4
+                            next_state_copy[agent_idx]['agent'] = 4
+                            agent.update_q_network((
+                                flatten_positions(state),
+                                actions[agent_idx],
+                                rewards[i],
+                                flatten_positions(next_state_copy),
+                                int(done)
+                            ))
 
-# Plot total reward per episode for each agent
-plt.subplot(1, 2, 1)
-for i in range(env.n_agents):
-    rewards = [episode_rewards[i] for episode_rewards in rewards_per_episode]
-    plt.plot(rewards, label=f'Agent {i + 1}')
-plt.title('Total Reward per Episode')
-plt.xlabel('Episode')
-plt.ylabel('Total Reward')
-plt.legend()
+    def train(self):
+        done = False
+        for episode in range(self.num_episodes):
+            total_rewards = [0] * self.env.n_agents
+            self.env.reset()
+            self.env.render()
+            done = False
+            for steps in tqdm.tqdm(range(self.max_steps)):
+              if not done:
+                prev_state = copy.deepcopy(self.env.positions)
 
-# Plot number of steps per episode
-plt.subplot(1, 2, 2)
-plt.plot(steps_per_episode)
-plt.title('Steps per Episode')
-plt.xlabel('Episode')
-plt.ylabel('Number of Steps')
-plt.savefig('learning_process.png')
-plt.tight_layout()
-plt.show()
+                # Select actions for each agent
+                actions = self.get_action()
+
+                # Take actions in the environment
+                next_state, rewards, done = self.env.step(actions, steps)
+
+                # Update agents with experience
+                self.train_agent(prev_state, actions, rewards, next_state, done)
+
+                # Accumulate rewards and increment step counter
+                for i, reward in enumerate(rewards):
+                    total_rewards[i] += reward
+                step = steps
+
+            # Update target networks and epsilon for each agent
+            for agent in self.agents:
+                agent.update_target_network()
+                if agent.epsilon > agent.epsilon_min:
+                    agent.epsilon *= agent.epsilon_decay
+
+            # Track rewards and steps
+            self.rewards_per_episode.append(total_rewards)
+            self.steps_per_episode.append(steps)
+
+            # Log progress
+            if episode % 100 == 0:
+                print(f"Episode {episode + 1}: Total Rewards: {total_rewards}, Steps: {step}")
+    
+
+    # Plotting function
+    def plot_learning_progress(self):
+        plt.figure(figsize=(12, 5))
+
+        # Plot total reward per episode for each agent
+        plt.subplot(1, 2, 1)
+        for i in range(self.env.n_agents):
+            rewards = [episode_rewards[i] for episode_rewards in self.rewards_per_episode]
+            plt.plot(rewards, label=f'Agent {i + 1}')
+        plt.title('Total Reward per Episode')
+        plt.xlabel('Episode')
+        plt.ylabel('Total Reward')
+        plt.legend()
+
+        # Plot number of steps per episode
+        plt.subplot(1, 2, 2)
+        plt.plot(self.steps_per_episode)
+        plt.title('Steps per Episode')
+        plt.xlabel('Episode')
+        plt.ylabel('Number of Steps')
+
+        # Save and show the plot
+        plt.tight_layout()
+        plt.savefig('learning_process.png')
+        plt.show()
+
+# Run the training process
+if __name__ == "__main__":
+    # Load configuration and initialize environment
+    config = Config("config.yaml")
+    env = Environment(config)
+
+    # Initialize agents
+    agents = [Agent(env, config) for _ in range(env.n_agents)]
+
+    # Hyperparameters
+    num_episodes = config.num_episodes
+    max_steps = config.max_steps
+
+    # Tracking rewards and steps
+    rewards_per_episode = []
+    steps_per_episode = []
+
+    trainer = training(config,env)
+    trainer.plot_learning_progress()

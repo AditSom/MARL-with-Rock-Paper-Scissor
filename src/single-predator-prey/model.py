@@ -6,7 +6,7 @@ import numpy as np
 from collections import deque
 
 # Neural Network for the Q-value function
-class DQN(nn.Module):
+class DQN(nn.Module): #TODO: Make variable size DQN 
     def __init__(self, input_dim, output_dim):
         super(DQN, self).__init__()
         self.fc1 = nn.Linear(input_dim, 64)

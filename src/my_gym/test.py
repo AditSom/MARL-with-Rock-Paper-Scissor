@@ -1,5 +1,6 @@
 import numpy as np
-from env import Config, Environment
+from config import Config
+from environment import Environment
 
 if __name__ == "__main__":
     config_file = "config.yaml"
@@ -8,7 +9,7 @@ if __name__ == "__main__":
       # Import your package components
 
     # Load configuration
-    config = Config("mypackage/config.yaml")  # Path to your YAML file
+    config = Config("config.yaml")  # Path to your YAML file
     env = Environment(config)  # Initialize the environment
 
     # Number of steps in one episode
@@ -22,24 +23,26 @@ if __name__ == "__main__":
     # Run one episode
     print("Initial Environment:")
     env.render()
-
-    for step in range(max_steps):
-        if env.done:
-            print(f"Episode ended after {step} steps.")
-            break
+    step = 0
+    while not env.done:
+        
 
         # Select random actions for all agents
         action_list = random_action_selector(env.total_agents)
         
         # Take a step in the environment
-        env.step(action_list)
+        env.step(action_list,step)
         
         # Render the environment
-        print(f"Step {step + 1}:")
+        #print(f"Step {step + 1}:")
+        if env.done:
+            print(f"Episode ended after {step} steps.")
+            break
+        step+=1
 
     # Check results
     if env.done:
-        print(f"Winner: Agent Type {env.winner}")
+        print(f"Winner: Agent Type {env.winner+1}")
     else:
         print("Episode ended without a winner.")
 

@@ -1,14 +1,14 @@
 grid_size: 15  # Overriding the default grid size to 15x15
-agents: [4, 3]  # 4 agents of type 0 and 3 agents of type 1
+agents: [1, 1]  # 4 agents of type 0 and 3 agents of type 1
 prey_predator_combo: 
   0: 1  # Type 1 can capture Type 0
-  1: 0  # Type 0 can capture Type 1
+  1: None  # Type 0 can capture Type 1
 reward:
-  win: 20         # Increased reward for winning
-  lose: -15       # Increased penalty for losing
-  captured: 10    # Increased reward for capturing
-  eliminated: -5  # Increased penalty for elimination
-  step: -2        # Increased penalty for each step
+  win: 1         # Increased reward for winning
+  lose: -1       # Increased penalty for losing
+  captured: 0    # Increased reward for capturing
+  eliminated: 0  # Increased penalty for elimination
+  step: -0.1        # Increased penalty for each step
 animation: False  # Disable animation
 ani_save_path: "output_animation.gif"  # Updated animation save path
 fps: 10  # Faster frame rate for animation
@@ -17,3 +17,6 @@ positions:  # Explicit positions for agents
   - [[0, 0], [1, 1], [2, 2], [3, 3]]  # Positions for agents of type 0
   - [[4, 4], [5, 5], [6, 6]]          # Positions for agents of type 1
 capture: False  # Prey is eliminated, not captured
+# Training Hyperparameters
+num_episodes: 1000
+max_steps: 500

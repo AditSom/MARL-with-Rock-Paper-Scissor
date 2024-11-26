@@ -1,7 +1,7 @@
 import numpy as np  # type: ignore
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from .config import Config
+from config import Config
 import copy
 
 class Environment:
@@ -48,6 +48,8 @@ class Environment:
         self.positions = []
         self.reward = [0] * self.n_agents
         self.winner = None
+        self.eliminated_record = [False] * self.n_agents
+        self.capture_record = []
         if self.config.animation:
             self.store_positions = []
 
@@ -108,19 +110,18 @@ class Environment:
         for i in range(self.n_agents):
             if agent_count[i] == 0 and not self.eliminated_record[i]:
                 self.eliminated_record[i] = True
-                print(f"Agent {i + 1} eliminated")
+                #print(f"Agent {i + 1} eliminated")
 
         if self.config.capture:
             if max(agent_count) == self.total_agents:
                 self.done = True
                 self.winner = agent_count.index(max(agent_count))
-                print(f"Agent {self.winner} wins")
+                #print(f"Agent {self.winner} wins")
         else:
-            for i in range(self.n_agents):
-                if self.eliminated_record[i]:
-                    self.done = True
-                    self.winner = self.prey_predator_combo[i]
-                    print(f"Agent {self.winner} wins")
+            if self.eliminated_record.count(False) == 1:
+              self.done = True
+              self.winner = self.eliminated_record.index(False)
+              print(f"Agent {self.winner} wins")
                     
     def reward_update(self):
         """Update the rewards for each agent."""
@@ -132,9 +133,11 @@ class Environment:
                 else:
                     self.reward[i] = self.rewards['lose']
         else:
-            self.reward = (np.array(self.capture_record[0]) * self.rewards['captured'] -
-                           np.array(self.capture_record[1]) * self.rewards['eliminated'] -
-                           np.array([self.rewards['step']] * self.n_agents))
+            for i in range(self.n_agents):
+                if self.prey_predator_combo[i]!='None':
+                    self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['step']
+                else:
+                    self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']
 
     def render_entire_episode(self):
         """Render the progression of the episode as an animation and save it as a video."""
@@ -147,8 +150,9 @@ class Environment:
         im = ax.imshow(grid_data, cmap="viridis", vmin=0, vmax=self.n_agents + 1)
 
         def update(frame):
+            # print(self.store_positions[frame])
             self.update_grid(self.store_positions[frame], print_grid=False)
-            im.set_data(self.grid.copy())
+            im.set_data(copy.deepcopy(self.grid))
             ax.set_title(f"Step {frame + 1}")
             return [im]
 
@@ -164,6 +168,7 @@ class Environment:
             return
         cmap = plt.cm.get_cmap('viridis', 4)
         self.update_grid(print_grid=False)
+        print(self.positions)
         grid = np.array(self.grid)
         plt.figure(figsize=(self.config.grid_size, self.config.grid_size))
         plt.imshow(grid, cmap=cmap, interpolation='nearest')
@@ -182,12 +187,13 @@ class Environment:
         self.capture_check()
         self.reward_update()
         if self.config.animation:
-            self.store_positions.append(self.positions[:])
+            self.store_positions.append(copy.deepcopy(self.positions))
         # if timestep == self.config.time_step:
         #     self.done = True
         if self.config.track_grid is not False and timestep % self.config.track_grid == 0:
             self.update_grid()
         if self.done and self.config.animation:
+            # self.plot_grid()
             self.render_entire_episode()
         return copy.deepcopy(self.positions), copy.deepcopy(self.reward), copy.deepcopy(self.done)
 

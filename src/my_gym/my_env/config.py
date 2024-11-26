@@ -33,9 +33,6 @@ class Config:
         with open(yaml_file, 'r') as file:
             yaml_config = yaml.safe_load(file)
             for key, value in yaml_config.items():
-                if hasattr(self, key):
                     setattr(self, key, value)
-                else:
-                    print(f"Warning: Unrecognized configuration parameter '{key}' in {yaml_file}")
 
 
