@@ -10,7 +10,7 @@ from spp.train import flatten_positions, training
 
 if __name__ == "__main__":
     # Load configuration and initialize environment
-    config = Config("config.yaml")
+    config = Config("config.yaml")    
     env = Environment(config)
 
     # Initialize agents
