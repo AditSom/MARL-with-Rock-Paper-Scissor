@@ -138,7 +138,12 @@ class Environment:
                 if i == self.winner:
                     self.reward[i] = self.rewards['win']
                 else:
-                    self.reward[i] = self.rewards['lose']
+                    # if the agent is prey and not captured, give it a reward
+                    if self.prey_predator_combo[i] == 'None' and self.updated_agent_count[i] > 0:
+                        self.reward[i] = self.rewards['win']
+                    else:
+                        self.reward[i] = self.rewards['lose']
+                
         else:
             for i in range(self.n_agents):
                 if self.prey_predator_combo[i]!='None':
@@ -206,9 +211,9 @@ class Environment:
             if i not in self.captured_agents:
                 self.action_update(action_list[i], i)
         self.capture_check(timestep)
-        self.reward_update()
         if timestep+1 == self.config.max_steps:
             self.done = True
+        self.reward_update()
         if self.config.animation:
             self.store_positions.append(copy.deepcopy(self.positions))
         if self.config.track_grid is not False and timestep % self.config.track_grid == 0:

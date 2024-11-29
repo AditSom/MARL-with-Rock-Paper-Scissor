@@ -18,9 +18,9 @@ capture: False  # Prey is eliminated, not captured
 num_episodes: 10000
 max_steps: 500
 model: "dqn"  
-hidden_dim: [64, 64]
+hidden_dim: [128, 64]
 save_path: "C:/Users/Work/Documents/GitHub/MARL-with-Rock-Paper-Scissor/experiments/" # Put the absolute path to the experiments folder
-tag: "spp_exp_1" 
+tag: "test" 
 config_file: "src/config.yaml"  # Path to the custom config file
 smooth_plot: True  # Smooth the training plot
 ani_batch_size: 50  # Batch size for animation

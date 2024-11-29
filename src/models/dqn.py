@@ -9,18 +9,18 @@ from collections import deque
 class DQN(nn.Module): #TODO: Make variable size DQN 
     def __init__(self, input_dim, output_dim,config):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, config.hidden_dim[0])
-        self.hidden_dim = config.hidden
+        self.fc0 = nn.Linear(input_dim, config.hidden_dim[0])
+        self.hidden_dim = config.hidden_dim
         for i in range(1,len(config.hidden_dim)):
-            setattr(self, f'fc{i+1}', nn.Linear(config.hidden_dim[i-1], config.hidden_dim[i]))
+            setattr(self, f'fc{i}', nn.Linear(config.hidden_dim[i-1], config.hidden_dim[i]))
         self.fc_final = nn.Linear(config.hidden_dim[-1], output_dim)
 
 
         
 
     def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        for i in range(2,len(self.hidden_dim)):
+        x = torch.relu(self.fc0(x))
+        for i in range(1,len(self.hidden_dim)):
             x = torch.relu(getattr(self, f'fc{i}')(x))
         return self.fc_final(x)
 
