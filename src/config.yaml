@@ -1,4 +1,4 @@
-grid_size: 15  # Overriding the default grid size to 15x15
+grid_size: 5  # Overriding the default grid size to 15x15
 agents: [1, 1]  # 4 agents of type 0 and 3 agents of type 1
 prey_predator_combo: 
   0: 1  # Type 1 can capture Type 0
@@ -9,18 +9,18 @@ reward:
   captured: 0    # Increased reward for capturing
   eliminated: 0  # Increased penalty for elimination
   step: -0.1        # Increased penalty for each step
-  prey_step: 0.1   # Increased penalty for each step of the prey
+  prey_step: 0.01   # Increased penalty for each step of the prey
 animation: True  # Disable animation
 fps: 10  # Faster frame rate for animation
 position_random: True  # Disable random positions
 capture: False  # Prey is eliminated, not captured
 # Training Hyperparameters
-num_episodes: 100
+num_episodes: 10000
 max_steps: 500
 model: "dqn"  
 hidden_dim: [64, 64]
 save_path: "C:/Users/Work/Documents/GitHub/MARL-with-Rock-Paper-Scissor/experiments/" # Put the absolute path to the experiments folder
-tag: "trial" 
+tag: "spp_exp_1" 
 config_file: "src/config.yaml"  # Path to the custom config file
 smooth_plot: True  # Smooth the training plot
 ani_batch_size: 50  # Batch size for animation

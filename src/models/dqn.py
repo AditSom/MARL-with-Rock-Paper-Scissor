@@ -10,6 +10,7 @@ class DQN(nn.Module): #TODO: Make variable size DQN
     def __init__(self, input_dim, output_dim,config):
         super(DQN, self).__init__()
         self.fc1 = nn.Linear(input_dim, config.hidden_dim[0])
+        self.hidden_dim = config.hidden
         for i in range(1,len(config.hidden_dim)):
             setattr(self, f'fc{i+1}', nn.Linear(config.hidden_dim[i-1], config.hidden_dim[i]))
         self.fc_final = nn.Linear(config.hidden_dim[-1], output_dim)
