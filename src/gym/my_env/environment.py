@@ -1,8 +1,11 @@
 import numpy as np  
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from matplotlib import animation
 from .config import Config
 import copy
+import os
+import moviepy as mpy
 
 class Environment:
     def __init__(self, config):
@@ -23,6 +26,8 @@ class Environment:
         self.winner = None
         if self.config.animation:
             self.store_positions = []
+        self.frames_accumulated = []
+        self.timestep = 0
 
     def render(self):
         """Initialize the environment and update the grid."""
@@ -36,6 +41,8 @@ class Environment:
             for j in range(self.agents[i]):
                 if self.config.position_random:
                     pos = list(np.random.randint(0, self.grid_size, size=2))
+                    while pos in [p['position'] for p in self.positions]:
+                        pos = list(np.random.randint(0, self.grid_size, size=2))
                 else:
                     pos = self.config.positions[i][j]
                 self.positions.append({'agent': i, 'position': pos})
@@ -84,7 +91,7 @@ class Environment:
             pos[1] = min(self.grid_size - 1, pos[1] + 1)
         self.positions[agent_id]['position'] = pos
 
-    def capture_check(self):
+    def capture_check(self,timestep=None):
         """Check if any agents have been captured."""
         self.capture_record = [[0] * self.n_agents, [0] * self.n_agents]
         for i in range(self.total_agents):
@@ -121,7 +128,7 @@ class Environment:
             if self.eliminated_record.count(False) == 1:
               self.done = True
               self.winner = self.eliminated_record.index(False)
-              print(f"Agent {self.winner} wins")
+              #print(f"Agent {self.winner} wins")
                     
     def reward_update(self):
         """Update the rewards for each agent."""
@@ -137,29 +144,43 @@ class Environment:
                 if self.prey_predator_combo[i]!='None':
                     self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['step']
                 else:
-                    self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']
+                    self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['prey_step']
 
-    def render_entire_episode(self):
-        """Render the progression of the episode as an animation and save it as a video."""
-        if not self.config.animation or not hasattr(self, "store_positions") or len(self.store_positions) == 0:
-            print("No animation data to render. Ensure animation is enabled and steps have been performed.")
-            return
+    def render_entire_episode(self, ep):
+        """
+        Render the progression of the episode as an animation, save it as a video, 
+        and group episodes into batches of 50 videos.
+        """
+        # Compile video every 50 episodes
+        if (ep+1)%50 == 0:
+            for frame in range(len(self.store_positions)):
+                self.update_grid(self.store_positions[frame], print_grid=False)
+                grid_copy = copy.deepcopy(self.grid)
+                temp_dict = {}
+                temp_dict = {
+                    'grid': grid_copy,
+                    'episode': ep+1,
+                    'step': frame + 1
+                }
+                self.frames_accumulated.append(copy.deepcopy(temp_dict))
+            fig, ax = plt.subplots()
+            grid_data = np.zeros((self.grid_size, self.grid_size), dtype=int)
+            im = ax.imshow(grid_data, cmap="viridis", vmin=0, vmax=self.n_agents + 1)
+            fig.colorbar(im, ax=ax)
+            def update(frame):
+                grid = self.frames_accumulated[frame]['grid']
+                im.set_data(copy.deepcopy(grid))
+                ax.set_title(f"Step { self.frames_accumulated[frame]['step']}, Episode {self.frames_accumulated[frame]['episode']}")
+                return [im]
 
-        fig, ax = plt.subplots()
-        grid_data = np.zeros((self.grid_size, self.grid_size), dtype=int)
-        im = ax.imshow(grid_data, cmap="viridis", vmin=0, vmax=self.n_agents + 1)
-
-        def update(frame):
-            # print(self.store_positions[frame])
-            self.update_grid(self.store_positions[frame], print_grid=False)
-            im.set_data(copy.deepcopy(self.grid))
-            ax.set_title(f"Step {frame + 1}")
-            return [im]
-
-        ani = FuncAnimation(fig, update, frames=len(self.store_positions), interval=100, blit=True)
-        output_path = self.config.ani_save_path
-        ani.save(output_path, writer="ffmpeg", fps=self.config.fps)
-        print(f"Animation saved to {output_path}")
+            output_path = os.path.join(self.config.save_path, f"animations/animation_batch_{ep // 50}.gif")
+            ani = FuncAnimation(fig, update, frames=len(self.frames_accumulated), interval=100, blit=True)
+            ani.save(output_path,fps=self.config.fps,writer="pillow")
+            #print(f"Compiled video saved to {output_path}")
+            # Close the figure to prevent memory leaks
+            
+            plt.close(fig)
+            self.frames_accumulated = []
 
     def plot_grid(self):
         """Plot the final grid at the end of the episode."""
@@ -176,25 +197,25 @@ class Environment:
         plt.title('Agent Grid')
         plt.xlabel('X')
         plt.ylabel('Y')
-        output_path = "grid_plot.png"
+        output_path = self.config.save_path + "grid.png"
         plt.savefig(output_path)
 
-    def step(self, action_list, timestep):
+    def step(self, action_list, timestep, ep):
         """Perform a step in the environment."""
         for i in range(self.total_agents):
             if i not in self.captured_agents:
                 self.action_update(action_list[i], i)
-        self.capture_check()
+        self.capture_check(timestep)
         self.reward_update()
+        if timestep+1 == self.config.max_steps:
+            self.done = True
         if self.config.animation:
             self.store_positions.append(copy.deepcopy(self.positions))
-        # if timestep == self.config.time_step:
-        #     self.done = True
         if self.config.track_grid is not False and timestep % self.config.track_grid == 0:
             self.update_grid()
         if self.done and self.config.animation:
-            # self.plot_grid()
-            self.render_entire_episode()
+            # self. grid()
+            self.render_entire_episode(ep)
         return copy.deepcopy(self.positions), copy.deepcopy(self.reward), copy.deepcopy(self.done)
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 import numpy as np
-from my_gym import Config, Environment
+from gym import Config, Environment
 import tensorflow as tf
 import random
 from collections import deque

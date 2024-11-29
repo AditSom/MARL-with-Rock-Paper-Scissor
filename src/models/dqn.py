@@ -67,3 +67,6 @@ class Agent:
 
     def update_target_network(self):
         self.target_network.load_state_dict(self.q_network.state_dict())
+    
+    def save_model(self, path):
+        torch.save(self.q_network.state_dict(), path)
