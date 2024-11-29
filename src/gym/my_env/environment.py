@@ -59,13 +59,13 @@ class Environment:
         self.capture_record = []
         if self.config.animation:
             self.store_positions = []
-
+        
     def update_grid(self, position=None, print_grid=True):
         """Update the grid with the current positions of the agents."""
         self.grid = np.zeros((self.grid_size, self.grid_size), dtype=int)
         if position is not None:
             for i in range(self.total_agents):
-                if i not in self.captured_agents:
+                if position[i]['agent']!=-1:
                     self.grid[position[i]['position'][0], position[i]['position'][1]] = position[i]['agent'] + 1
         else:
             for i in range(self.total_agents):

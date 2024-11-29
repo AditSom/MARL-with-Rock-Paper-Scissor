@@ -7,24 +7,29 @@ from collections import deque
 
 # Neural Network for the Q-value function
 class DQN(nn.Module): #TODO: Make variable size DQN 
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input_dim, output_dim,config):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, output_dim)
+        self.fc1 = nn.Linear(input_dim, config.hidden_dim[0])
+        for i in range(1,len(config.hidden_dim)):
+            setattr(self, f'fc{i+1}', nn.Linear(config.hidden_dim[i-1], config.hidden_dim[i]))
+        self.fc_final = nn.Linear(config.hidden_dim[-1], output_dim)
+
+
+        
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        return self.fc3(x)
+        for i in range(2,len(self.hidden_dim)):
+            x = torch.relu(getattr(self, f'fc{i}')(x))
+        return self.fc_final(x)
 
 class Agent:
     def __init__(self, env,config):
         self.env = env
         self.config = config
         self.input_dim = env.total_agents * 3
-        self.q_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions)
-        self.target_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions)
+        self.q_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions,config=config)
+        self.target_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions,config=config)
         self.target_network.load_state_dict(self.q_network.state_dict())
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=0.001)
         self.loss_fn = nn.MSELoss()
