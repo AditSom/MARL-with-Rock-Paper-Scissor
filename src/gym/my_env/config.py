@@ -1,7 +1,7 @@
 import yaml
 
 class Config:
-    def __init__(self, yaml_file=None):
+    def __init__(self, yaml_file=None,args=None):
         # Default configuration
         self.grid_size = 10  # Size of the grid (10x10)
         self.agents = [3, 2]  # Number of agents for each type
@@ -24,10 +24,20 @@ class Config:
         self.capture = True  # Predators capture or eliminate prey
         self.track_grid = False
         self.time_step = 100000
+        self.n_actions = 5
         # Load and override parameters from a YAML file if provided
         if yaml_file:
             self.load_from_yaml(yaml_file)
-        self.n_actions = 5
+        if args:
+            self.load_from_args(args)
+        
+    def load_from_args(self, args):
+        for key, value in vars(args).items():
+            if value is not None:
+                if 'reward' not in key:
+                    setattr(self, key, value)
+                else:
+                    self.reward[key.split('_')[1]] = value
 
     def load_from_yaml(self, yaml_file):
         with open(yaml_file, 'r') as file:

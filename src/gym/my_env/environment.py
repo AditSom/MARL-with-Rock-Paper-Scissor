@@ -149,7 +149,7 @@ class Environment:
                 if self.prey_predator_combo[i]!='None':
                     self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['step']
                 else:
-                    self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['prey_step']
+                    self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['preystep']
 
     def render_entire_episode(self, ep):
         """

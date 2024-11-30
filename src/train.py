@@ -8,6 +8,7 @@ from models.get_model import get_model
 import tqdm
 import shutil
 import os
+from args import get_args
 
 
 # Helper function to flatten positions
@@ -150,7 +151,8 @@ class training:
 
 if __name__ == "__main__":
     # Load configuration and initialize environment
-    config = Config("config.yaml")    
+    args = get_args()
+    config = Config("config.yaml", args)    
     env = Environment(config)
     Agent = get_model(config.model, env, config)
     trainer = training(config,env)

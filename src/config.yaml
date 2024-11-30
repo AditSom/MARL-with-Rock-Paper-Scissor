@@ -9,7 +9,7 @@ reward:
   captured: 0    # Increased reward for capturing
   eliminated: 0  # Increased penalty for elimination
   step: -0.1        # Increased penalty for each step
-  prey_step: 0.01   # Increased penalty for each step of the prey
+  preystep: 0.1   # Increased penalty for each step of the prey
 animation: True  # Disable animation
 fps: 10  # Faster frame rate for animation
 position_random: True  # Disable random positions
@@ -18,7 +18,7 @@ capture: False  # Prey is eliminated, not captured
 num_episodes: 10000
 max_steps: 500
 model: "dqn"  
-hidden_dim: [128, 64]
+hidden_dim: [64, 64]
 save_path: "C:/Users/Work/Documents/GitHub/MARL-with-Rock-Paper-Scissor/experiments/" # Put the absolute path to the experiments folder
 tag: "test" 
 config_file: "src/config.yaml"  # Path to the custom config file
