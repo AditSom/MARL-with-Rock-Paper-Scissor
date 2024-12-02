@@ -89,6 +89,14 @@ class Environment:
             pos[1] = max(0, pos[1] - 1)
         elif action == 3:  # Move right
             pos[1] = min(self.grid_size - 1, pos[1] + 1)
+        # Check if the new position is occupied by another agent
+        for i in range(self.total_agents):
+            if i != agent_id and self.positions[i]['position'] == pos:
+                # If the new position has the predator then the prey can't move
+                if self.prey_predator_combo[self.positions[i]['agent']] == self.positions[agent_id]['agent']:
+                    pos = self.positions[agent_id]['position']
+                    break
+        
         self.positions[agent_id]['position'] = pos
 
     def capture_check(self,timestep=None):
