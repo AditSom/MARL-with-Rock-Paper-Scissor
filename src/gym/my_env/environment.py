@@ -28,6 +28,7 @@ class Environment:
             self.store_positions = []
         self.frames_accumulated = []
         self.timestep = 0
+        self.prev_pos = None
 
     def render(self):
         """Initialize the environment and update the grid."""
@@ -91,9 +92,9 @@ class Environment:
             pos[1] = min(self.grid_size - 1, pos[1] + 1)
         # Check if the new position is occupied by another agent
         for i in range(self.total_agents):
-            if i != agent_id and self.positions[i]['position'] == pos:
+            if i != agent_id and self.prev_positions[i]['position'] == pos:
                 # If the new position has the predator then the prey can't move
-                if self.prey_predator_combo[self.positions[i]['agent']] == self.positions[agent_id]['agent']:
+                if self.prey_predator_combo[self.positions[i]['agent']] == self.prev_positions[agent_id]['agent']:
                     pos = self.positions[agent_id]['position']
                     break
         
@@ -215,6 +216,7 @@ class Environment:
 
     def step(self, action_list, timestep, ep):
         """Perform a step in the environment."""
+        self.prev_positions = copy.deepcopy(self.positions)
         for i in range(self.total_agents):
             if i not in self.captured_agents:
                 self.action_update(action_list[i], i)
