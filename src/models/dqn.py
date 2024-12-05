@@ -15,9 +15,6 @@ class DQN(nn.Module): #TODO: Make variable size DQN
             setattr(self, f'fc{i}', nn.Linear(config.hidden_dim[i-1], config.hidden_dim[i]))
         self.fc_final = nn.Linear(config.hidden_dim[-1], output_dim)
 
-
-        
-
     def forward(self, x):
         x = torch.relu(self.fc0(x))
         for i in range(1,len(self.hidden_dim)):
@@ -32,7 +29,7 @@ class Agent:
         self.q_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions,config=config)
         self.target_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions,config=config)
         self.target_network.load_state_dict(self.q_network.state_dict())
-        self.optimizer = optim.Adam(self.q_network.parameters(), lr=0.001)
+        self.optimizer = optim.Adam(self.q_network.parameters(), lr=0.0001)
         self.loss_fn = nn.MSELoss()
 
         self.memory = deque(maxlen=10000)
@@ -41,21 +38,31 @@ class Agent:
         self.epsilon = 1.0  # Exploration rate
         self.epsilon_decay = 0.995
         self.epsilon_min = 0.01
+        
+        # self.batch_size = 64
 
     def select_action(self, state):
         if random.random() < self.epsilon:
-            return random.randint(0, self.config.n_actions-1)
+            state = torch.FloatTensor(state).unsqueeze(0)
+            q_values = self.q_network(state)
+            return random.randint(0, self.config.n_actions-1), q_values.detach().numpy()
         else:
             with torch.no_grad():
                 state = torch.FloatTensor(state).unsqueeze(0)
                 q_values = self.q_network(state)
-                return q_values.argmax().item()
+                return q_values.argmax().item(), q_values.detach().numpy()
 
     def store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
     def update_q_network(self,input):
+        # if len(self.memory) < self.batch_size:
+        #     return
+        # batch = random.sample(self.memory, self.batch_size)
+        # states, actions, rewards, next_states, dones = zip(*batch)
+        
         states,actions,rewards,next_states,dones = input
+        
         states = torch.FloatTensor(states).unsqueeze(0)
         actions = torch.LongTensor([actions])
         rewards = torch.FloatTensor([rewards])

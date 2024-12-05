@@ -8,7 +8,6 @@ from models.get_model import get_model
 import tqdm
 import shutil
 import os
-from args import get_args
 
 
 # Helper function to flatten positions
@@ -27,6 +26,7 @@ class training:
         self.max_steps = config.max_steps
         self.rewards_per_episode = []
         self.steps_per_episode = []
+        self.q_tracker = []
 
     def get_action(self):
         self.actions = []
@@ -35,7 +35,9 @@ class training:
                         if agent_idx not in self.env.captured_agents:
                             state = copy.deepcopy(self.env.positions)
                             state[agent_idx]['agent'] = 4
-                            self.actions.append(agent.select_action(flatten_positions(state)))
+                            self.actions.append(agent.select_action(flatten_positions(state))[0])
+                            self.q_tracker.append(agent.select_action(flatten_positions(state))[1])
+                            
         return self.actions
     
     def train_agent(self, prev_state, actions, rewards, next_state, done):
@@ -104,6 +106,20 @@ class training:
         plt.tight_layout()
         plt.savefig(self.config.save_path + 'training_process.png')
         plt.show()
+        
+        
+        # Plot all the Q-values
+        # plt.figure(figsize=(12, 5))
+        # for i in range(self.env.n_agents):
+        #     q_values = [q_values[i] for q_values in self.q_tracker]
+        #     plt.plot(q_values, label=f'Agent {i + 1}')
+        # plt.title('Q-values')
+        # plt.xlabel('Step')
+        # plt.ylabel('Q-value')
+        # plt.legend()
+        # plt.tight_layout()
+        # plt.savefig(self.config.save_path + 'q_values.png')
+        # plt.show()
 
     def train(self):
         done = False
@@ -114,6 +130,7 @@ class training:
             self.env.reset() 
             self.env.render()
             done = False
+            monitor = {}
             for steps in range(self.max_steps):
               if not done:
                 prev_state = copy.deepcopy(self.env.positions)
@@ -122,7 +139,11 @@ class training:
                 actions = self.get_action()
 
                 # Take actions in the environment
-
+                # For every step; store the previous state, actions, rewards, next state, done and position of the agents in monitor
+                monitor[steps] = {
+                    "prev_state": prev_state,
+                    "actions": actions,
+                    "positions": self.env.positions}
                 next_state, rewards, done = self.env.step(actions, steps,episode)
 
                 # Update agents with experience
@@ -132,7 +153,18 @@ class training:
                 for i, reward in enumerate(rewards):
                     total_rewards[i] += reward
                 step = steps
-
+            # if step==0:
+                # # Print all information possible for debugging
+                # print(monitor)
+                # print("Episode: ", episode)
+                # print("Step: ", step)
+                # print("Total Rewards: ", total_rewards)
+                # print("Done: ", done)
+                # print("Actions: ", actions)
+                # print("Rewards: ", rewards)
+                # print("Next State: ", next_state)
+                # print("Previous State: ", prev_state)
+                # print("Positions: ", self.env.positions)
             # Update target networks and epsilon for each agent
             for agent in self.agents:
                 agent.update_target_network()
@@ -151,8 +183,7 @@ class training:
 
 if __name__ == "__main__":
     # Load configuration and initialize environment
-    args = get_args()
-    config = Config("config.yaml", args)    
+    config = Config("config.yaml")    
     env = Environment(config)
     Agent = get_model(config.model, env, config)
     trainer = training(config,env)
