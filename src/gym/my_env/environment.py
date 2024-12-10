@@ -29,7 +29,6 @@ class Environment:
         self.frames_accumulated = []
         self.timestep = 0
         self.prev_pos = None
-        self.boundary = {}
 
     def render(self):
         """Initialize the environment and update the grid."""
@@ -109,7 +108,6 @@ class Environment:
             if i != agent_id and self.prev_positions[i]['position'] == pos:
                 # If the new position has the predator then the prey can't move
                 if self.prey_predator_combo[self.positions[i]['agent']] == self.prev_positions[agent_id]['agent']:
-                    # print('True')
                     pos = self.positions[agent_id]['position']
                     break
         
