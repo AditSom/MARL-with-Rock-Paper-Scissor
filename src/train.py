@@ -7,14 +7,17 @@ import copy
 from models.get_model import get_model
 import tqdm
 import shutil
+from args import get_args
 import os
 
 
 # Helper function to flatten positions
-def flatten_positions(positions):
+def flatten_positions(positions,distance=False):
+    if distance == False:
+        return [feature for position in positions for feature in [position['agent'], position['position'][0], position['position'][1]]]    
     return [
         feature for position in positions 
-        for feature in [position['agent'], position['position'][0], position['position'][1]]
+        for feature in [position['agent'], position['position'][0], position['position'][1], position['distance']]
     ]
 
 class training:
@@ -30,31 +33,52 @@ class training:
 
     def get_action(self):
         self.actions = []
+        counter = 0
         for i, agent in enumerate(self.agents):
-                    for agent_idx in range(self.env.agents[i]):
+                    for iter in range(self.env.agents[i]):
+                        agent_idx = counter
                         if agent_idx not in self.env.captured_agents:
                             state = copy.deepcopy(self.env.positions)
                             state[agent_idx]['agent'] = 4
-                            self.actions.append(agent.select_action(flatten_positions(state))[0])
-                            self.q_tracker.append(agent.select_action(flatten_positions(state))[1])
-                            
+                            if self.config.distance_input == True:
+                                state = self.inject_distance(state,counter)
+                            self.actions.append(agent.select_action(flatten_positions(state,self.config.distance_input))[0])
+                            self.q_tracker.append(agent.select_action(flatten_positions(state,self.config.distance_input))[1])
+                        counter += 1
         return self.actions
     
+    def inject_distance(self, state,agent_idx):
+        for i in range(self.env.total_agents):
+            # Calculate the distance between the agent and the other agents
+            distance = np.sqrt((state[agent_idx]['position'][0] - state[i]['position'][0])**2 + (state[agent_idx]['position'][1] - state[i]['position'][1])**2)
+            # Inject the distance into the state
+            state[i]['distance'] = distance
+        return state
+
+    
     def train_agent(self, prev_state, actions, rewards, next_state, done):
+        counter = 0
         for i, agent in enumerate(self.agents):
-                    for agent_idx in range(self.env.agents[i]):
+                    for iter in range(self.env.agents[i]):
+                        agent_idx = counter
                         if agent_idx not in self.env.captured_agents:
                             state = copy.deepcopy(prev_state)
                             next_state_copy = copy.deepcopy(next_state)
                             state[agent_idx]['agent'] = 4
                             next_state_copy[agent_idx]['agent'] = 4
+                            if config.distance_input == True:
+                                state = self.inject_distance(state,counter)
+                                next_state_copy = self.inject_distance(next_state_copy,counter)
                             agent.update_q_network((
-                                flatten_positions(state),
+                                flatten_positions(state,self.config.distance_input),
                                 actions[agent_idx],
                                 rewards[i],
-                                flatten_positions(next_state_copy),
+                                flatten_positions(next_state_copy,self.config.distance_input),
                                 int(done)
                             ))
+                        counter += 1
+
+                        
     def create_results(self):
         # Create a folder to store the results if it does not exist
         self.config.save_path = self.config.save_path + self.config.model + "_" + self.config.tag + "/"
@@ -134,7 +158,7 @@ class training:
             for steps in range(self.max_steps):
               if not done:
                 prev_state = copy.deepcopy(self.env.positions)
-
+                
                 # Select actions for each agent
                 actions = self.get_action()
 
@@ -145,7 +169,7 @@ class training:
                     "actions": actions,
                     "positions": self.env.positions}
                 next_state, rewards, done = self.env.step(actions, steps,episode)
-
+                #print(prev_state)
                 # Update agents with experience
                 self.train_agent(prev_state, actions, rewards, next_state, done)
 
@@ -153,18 +177,6 @@ class training:
                 for i, reward in enumerate(rewards):
                     total_rewards[i] += reward
                 step = steps
-            # if step==0:
-                # # Print all information possible for debugging
-                # print(monitor)
-                # print("Episode: ", episode)
-                # print("Step: ", step)
-                # print("Total Rewards: ", total_rewards)
-                # print("Done: ", done)
-                # print("Actions: ", actions)
-                # print("Rewards: ", rewards)
-                # print("Next State: ", next_state)
-                # print("Previous State: ", prev_state)
-                # print("Positions: ", self.env.positions)
             # Update target networks and epsilon for each agent
             for agent in self.agents:
                 agent.update_target_network()
@@ -183,7 +195,8 @@ class training:
 
 if __name__ == "__main__":
     # Load configuration and initialize environment
-    config = Config("config.yaml")    
+    args = get_args()
+    config = Config("config.yaml",args)    
     env = Environment(config)
     Agent = get_model(config.model, env, config)
     trainer = training(config,env)

@@ -1,3 +1,6 @@
 /experiments/
 /src/config.yaml
 src/config.yaml
+src/results/
+src/gym/my_env/__pycache__/environment.cpython-312.pyc
+src/models/__pycache__/dqn.cpython-312.pyc

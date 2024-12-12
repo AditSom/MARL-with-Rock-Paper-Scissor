@@ -1,9 +1,8 @@
 grid_size: 5  # Overriding the default grid size to 15x15
-agents: [1, 1]  # 4 agents of type 0 and 3 agents of type 1
+agents: [1,1]  # 4 agents of type 0 and 3 agents of type 1
 prey_predator_combo:
   0: 1  # Type 1 can capture Type 0
   1: None  # Type 0 can capture Type 1
-  # 2: 0
 reward:
   win: 1      # Increased reward for winning
   lose: -1      # Increased penalty for losing
@@ -23,10 +22,11 @@ num_episodes: 10000
 max_steps: 15
 model: "dqn"
 hidden_dim: [64, 128, 256, 128, 64]
-save_path: "C:\\Users\\adits\\Documents\\Columbia\\Acads\\RL\\Results\\" # Put the absolute path to the experiments folder
-tag: "trial_54"
+save_path: "results/" # Put the absolute path to the experiments folder
+tag: "trial_57"
 config_file: "src/config.yaml"  # Path to the custom config file
 smooth_plot: True  # Smooth the training plot
 ani_batch_size: 50  # Batch size for animation
 distance: True
 boundary: True
+distance_input: True

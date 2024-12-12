@@ -25,7 +25,11 @@ class Agent:
     def __init__(self, env,config):
         self.env = env
         self.config = config
-        self.input_dim = env.total_agents * 3
+        if config.distance_input:
+            input_dim_multiplier = 4
+        else:
+            input_dim_multiplier = 3
+        self.input_dim = env.total_agents * input_dim_multiplier
         self.q_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions,config=config)
         self.target_network = DQN(input_dim=self.input_dim, output_dim=config.n_actions,config=config)
         self.target_network.load_state_dict(self.q_network.state_dict())
@@ -62,7 +66,6 @@ class Agent:
         # states, actions, rewards, next_states, dones = zip(*batch)
         
         states,actions,rewards,next_states,dones = input
-        
         states = torch.FloatTensor(states).unsqueeze(0)
         actions = torch.LongTensor([actions])
         rewards = torch.FloatTensor([rewards])
