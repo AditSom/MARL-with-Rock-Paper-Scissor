@@ -34,6 +34,7 @@ class training:
     def get_action(self):
         self.actions = []
         counter = 0
+        q_tracker = []
         for i, agent in enumerate(self.agents):
                     for iter in range(self.env.agents[i]):
                         agent_idx = counter
@@ -43,8 +44,9 @@ class training:
                             if self.config.distance_input == True:
                                 state = self.inject_distance(state,counter)
                             self.actions.append(agent.select_action(flatten_positions(state,self.config.distance_input))[0])
-                            self.q_tracker.append(agent.select_action(flatten_positions(state,self.config.distance_input))[1])
+                            q_tracker.append(agent.select_action(flatten_positions(state,self.config.distance_input))[1])
                         counter += 1
+        self.q_tracker.append(q_tracker)
         return self.actions
     
     def inject_distance(self, state,agent_idx):
@@ -132,18 +134,23 @@ class training:
         plt.show()
         
         
-        # Plot all the Q-values
-        # plt.figure(figsize=(12, 5))
-        # for i in range(self.env.n_agents):
-        #     q_values = [q_values[i] for q_values in self.q_tracker]
-        #     plt.plot(q_values, label=f'Agent {i + 1}')
-        # plt.title('Q-values')
-        # plt.xlabel('Step')
-        # plt.ylabel('Q-value')
-        # plt.legend()
-        # plt.tight_layout()
-        # plt.savefig(self.config.save_path + 'q_values.png')
-        # plt.show()
+        # Plot all the Q-values in subplots for each agent, q_values is organized as [episode, agent, action]
+        q_values = np.array(self.q_tracker)
+        q_values = q_values.reshape(q_values.shape[0],self.env.total_agents,self.config.n_actions)
+        # For each agent type, plot the Q-values for each action 
+        plt.figure(figsize=(20, 10))
+        for i in range(self.env.total_agents):
+            plt.subplot(self.env.total_agents // 2 + self.env.total_agents % 2, 2, i + 1)
+            for k in range(self.config.n_actions):
+                plt.plot(q_values[:, i, k], label=f'Action {k}')
+            plt.title(f'Agent {i + 1} Q-Values')
+            plt.xlabel('Episode')
+            plt.ylabel('Q-Value')
+            plt.legend()
+        plt.tight_layout()
+        plt.savefig(self.config.save_path + 'all_agents_q_values.png')
+        plt.show()
+            
 
     def train(self):
         done = False

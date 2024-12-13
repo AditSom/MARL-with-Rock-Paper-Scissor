@@ -174,7 +174,7 @@ class Environment:
                                         #print('True')
                                         self.reward[i] += self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
                                     # if i is a prey and j is a predator, then the prey gets a reward for the distance between them
-                                    if self.positions[i]['agent'] == self.prey_predator_combo[j]:
+                                    if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
                                         self.reward[i] += -1*self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
         else:
             for i in range(self.n_agents):
