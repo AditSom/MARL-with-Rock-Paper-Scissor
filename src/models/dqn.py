@@ -80,6 +80,8 @@ class Agent:
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        loss = loss.detach().numpy()
+        return loss
 
     def update_target_network(self):
         self.target_network.load_state_dict(self.q_network.state_dict())

@@ -23,6 +23,7 @@ class Environment:
         self.capture_record = []
         self.eliminated_record = [False] * self.n_agents
         self.reward = []
+        self.distances = {i: [] for i in range(self.total_agents)}
         self.winner = None
         if self.config.animation:
             self.store_positions = []
@@ -62,6 +63,9 @@ class Environment:
         self.winner = None
         self.eliminated_record = [False] * self.n_agents
         self.capture_record = []
+        self.distances = []
+        self.boundary = {}
+        self.distances = {i: [] for i in range(self.total_agents)}
         self.boundary = {}
         if self.config.animation:
             self.store_positions = []
@@ -155,6 +159,14 @@ class Environment:
     def reward_update(self):
         """Update the rewards for each agent."""
         self.reward = [0] * self.n_agents
+        if self.config.distance:
+            if self.config.distance_type == 'average':
+                for i in range(self.total_agents):
+                    if i not in self.captured_agents:
+                        for j in range(self.total_agents):
+                            if j not in self.captured_agents:
+                                if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
+                                    self.distances[i].extend([np.sqrt((self.positions[i]['position'][0] - self.positions[j]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[j]['position'][1])**2)])
         if self.done:
             for i in range(self.n_agents):
                 if i == self.winner:
@@ -172,10 +184,20 @@ class Environment:
                                     # print(self.positions[j]['agent'],self.prey_predator_combo[i])
                                     if self.positions[j]['agent'] == self.prey_predator_combo[i]:
                                         #print('True')
-                                        self.reward[i] += self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
+                                        if self.config.distance_type == 'last':
+                                            self.reward[i] += self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
+                                        if self.config.distance_type == 'average':
+                                            if len(self.distances[i])>0:
+                                                self.reward[i] += self.rewards['distance'] * np.mean(self.distances[i])
+                                            else:
+                                                self.reward[i] += self.rewards['distance'] * 0
+                                            
                                     # if i is a prey and j is a predator, then the prey gets a reward for the distance between them
                                     if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
-                                        self.reward[i] += -1*self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
+                                        if self.config.distance_type == 'last':
+                                            self.reward[i] += -1*self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
+                                        if self.config.distance_type == 'average':
+                                            self.reward[i] += -1*self.rewards['distance'] * np.mean(self.distances[i])
         else:
             for i in range(self.n_agents):
                 if self.prey_predator_combo[i]!='None':
@@ -185,14 +207,16 @@ class Environment:
                 if self.config.boundary:
                     if i in self.boundary.keys():
                         self.reward[i] += self.rewards['boundary']
+        
 
-    def render_entire_episode(self, ep):
+
+    def render_entire_episode(self, ep, ani=False):
         """
         Render the progression of the episode as an animation, save it as a video, 
         and group episodes into batches of 50 videos.
         """
         # Compile video every 50 episodes
-        if (ep+1)%50 == 0:
+        if (ep+1)%50 == 0 or ani:
             for frame in range(len(self.store_positions)):
                 self.update_grid(self.store_positions[frame], print_grid=False)
                 grid_copy = copy.deepcopy(self.grid)
@@ -212,8 +236,9 @@ class Environment:
                 im.set_data(copy.deepcopy(grid))
                 ax.set_title(f"Step { self.frames_accumulated[frame]['step']}, Episode {self.frames_accumulated[frame]['episode']}")
                 return [im]
-
             output_path = os.path.join(self.config.save_path, f"animations/animation_batch_{ep // 50}.gif")
+            if ani:
+                output_path = os.path.join(self.config.save_path, f"animations_max_steps/animation_batch_{ep}_max_steps.gif")
             ani = FuncAnimation(fig, update, frames=len(self.frames_accumulated), interval=100, blit=True)
             ani.save(output_path,fps=self.config.fps,writer="pillow")
             #print(f"Compiled video saved to {output_path}")
@@ -247,8 +272,10 @@ class Environment:
             if i not in self.captured_agents:
                 self.action_update(action_list[i], i)
         self.capture_check(timestep)
+        ani = False
         if timestep+1 == self.config.max_steps:
             self.done = True
+            ani = self.config.max_step_ani
         self.reward_update()
         if self.config.animation:
             self.store_positions.append(copy.deepcopy(self.positions))
@@ -256,7 +283,7 @@ class Environment:
             self.update_grid()
         if self.done and self.config.animation:
             # self. grid()
-            self.render_entire_episode(ep)
+            self.render_entire_episode(ep,ani)
         return copy.deepcopy(self.positions), copy.deepcopy(self.reward), copy.deepcopy(self.done)
 
 if __name__ == "__main__":

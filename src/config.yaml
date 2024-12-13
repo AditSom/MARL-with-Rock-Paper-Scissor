@@ -18,7 +18,7 @@ position_random: True  # Disable random positions
 capture: False  # Prey is eliminated, not captured
 # Training Hyperparameters
 n_actions: 4
-num_episodes: 10000
+num_episodes: 100
 max_steps: 15
 model: "dqn"
 hidden_dim: [64, 128, 256, 128, 64]
@@ -28,5 +28,7 @@ config_file: "src/config.yaml"  # Path to the custom config file
 smooth_plot: True  # Smooth the training plot
 ani_batch_size: 50  # Batch size for animation
 distance: True
+distance_type: "average" # "average" or "last"
+max_step_ani: True # If you want to animate the max step
 boundary: True
 distance_input: True

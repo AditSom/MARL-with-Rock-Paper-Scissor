@@ -30,6 +30,7 @@ class training:
         self.rewards_per_episode = []
         self.steps_per_episode = []
         self.q_tracker = []
+        self.loss_tracker = []
 
     def get_action(self):
         self.actions = []
@@ -60,6 +61,7 @@ class training:
     
     def train_agent(self, prev_state, actions, rewards, next_state, done):
         counter = 0
+        loss_track = []
         for i, agent in enumerate(self.agents):
                     for iter in range(self.env.agents[i]):
                         agent_idx = counter
@@ -71,14 +73,18 @@ class training:
                             if config.distance_input == True:
                                 state = self.inject_distance(state,counter)
                                 next_state_copy = self.inject_distance(next_state_copy,counter)
-                            agent.update_q_network((
+                            loss = agent.update_q_network((
                                 flatten_positions(state,self.config.distance_input),
                                 actions[agent_idx],
                                 rewards[i],
                                 flatten_positions(next_state_copy,self.config.distance_input),
                                 int(done)
                             ))
+                            loss_track.append(float(loss))
+                        else:
+                            loss_track.append(0)
                         counter += 1
+        self.loss_tracker.append(loss_track)
 
                         
     def create_results(self):
@@ -94,6 +100,9 @@ class training:
         # Create a folder to store the animations if it does not exist
         if not os.path.exists(self.config.save_path + "animations/"):
             os.makedirs(self.config.save_path + "animations/")
+        if self.config.max_step_ani:
+            if not os.path.exists(self.config.save_path + "animations_max_steps/"):
+                os.makedirs(self.config.save_path + "animations_max_steps/")
         
     def save_results(self):
         # Save the model weights
@@ -149,6 +158,21 @@ class training:
             plt.legend()
         plt.tight_layout()
         plt.savefig(self.config.save_path + 'all_agents_q_values.png')
+        plt.show()
+
+        # Plot the loss for each agent
+        print(self.loss_tracker)
+        loss = np.array(self.loss_tracker)
+        loss = loss.reshape(loss.shape[0],self.env.total_agents)
+        plt.figure(figsize=(12, 5))
+        for i in range(self.env.total_agents):
+            plt.plot(loss[:, i], label=f'Agent {i + 1}')
+        plt.title('Loss per Episode')
+        plt.xlabel('Episode')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(self.config.save_path + 'loss.png')
         plt.show()
             
 
