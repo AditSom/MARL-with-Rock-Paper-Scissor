@@ -275,7 +275,8 @@ class Environment:
         ani = False
         if timestep+1 == self.config.max_steps:
             self.done = True
-            ani = self.config.max_step_ani
+            if ep > 5000:
+                ani = self.config.max_step_ani
         self.reward_update()
         if self.config.animation:
             self.store_positions.append(copy.deepcopy(self.positions))
