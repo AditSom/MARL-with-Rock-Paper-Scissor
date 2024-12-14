@@ -32,3 +32,5 @@ distance_type: "average" # "average" or "last"
 max_step_ani: True # If you want to animate the max step
 boundary: True
 distance_input: True
+experience_replay: True
+batch_size: 32

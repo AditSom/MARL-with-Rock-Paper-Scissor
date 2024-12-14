@@ -42,8 +42,7 @@ class Agent:
         self.epsilon = 1.0  # Exploration rate
         self.epsilon_decay = 0.995
         self.epsilon_min = 0.01
-        
-        # self.batch_size = 64
+        self.batch_size = config.batch_size
 
     def select_action(self, state):
         if random.random() < self.epsilon:
@@ -60,22 +59,30 @@ class Agent:
         self.memory.append((state, action, reward, next_state, done))
 
     def update_q_network(self,input):
-        # if len(self.memory) < self.batch_size:
-        #     return
-        # batch = random.sample(self.memory, self.batch_size)
-        # states, actions, rewards, next_states, dones = zip(*batch)
-        
-        states,actions,rewards,next_states,dones = input
+        # Store transitions in memory
+        if self.config.experience_replay:
+            self.store_transition(*input)
+            if len(self.memory) < self.batch_size:
+                return 0
+            batch = random.sample(self.memory, self.batch_size)
+            states, actions, rewards, next_states, dones = zip(*batch)
+        else:
+            states,actions,rewards,next_states,dones = input
         states = torch.FloatTensor(states).unsqueeze(0)
         actions = torch.LongTensor([actions])
         rewards = torch.FloatTensor([rewards])
         next_states = torch.FloatTensor(next_states).unsqueeze(0)
         dones = torch.FloatTensor([dones])
         current_q_values = self.q_network(states)
-        current_q_values = current_q_values[0][actions]
-        next_q_values = self.target_network(next_states).max(1)[0]
+        if self.config.experience_replay:
+            current_q_values = current_q_values.gather(1, actions.unsqueeze(2)).squeeze(2)
+        else:
+            current_q_values = current_q_values[0][actions]
+        if self.config.experience_replay:
+            next_q_values = self.target_network(next_states).max(2)[0]
+        else:
+            next_q_values = self.target_network(next_states).max(1)[0]
         target_q_values = rewards + (1 - dones) * self.gamma * next_q_values
-
         loss = self.loss_fn(current_q_values, target_q_values)
         self.optimizer.zero_grad()
         loss.backward()

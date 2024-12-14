@@ -161,7 +161,6 @@ class training:
         plt.show()
 
         # Plot the loss for each agent
-        print(self.loss_tracker)
         loss = np.array(self.loss_tracker)
         loss = loss.reshape(loss.shape[0],self.env.total_agents)
         plt.figure(figsize=(12, 5))

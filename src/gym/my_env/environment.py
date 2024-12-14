@@ -178,20 +178,22 @@ class Environment:
                     else:
                         self.reward[i] = self.rewards['lose']
                 if self.config.distance:
-                           # print('True1')
+                    if self.config.distance_type == 'average':
+                        
+                        if len(self.distances[i])>0:
+                            self.reward[i] += self.rewards['distance'] * np.mean(self.distances[i])
+                        else:
+                            self.reward[i] += self.rewards['distance'] * 0
+                    if self.config.distance_type == 'last':
                             for j in range(self.total_agents):
                                 if j not in self.captured_agents:
                                     # print(self.positions[j]['agent'],self.prey_predator_combo[i])
-                                    if self.positions[j]['agent'] == self.prey_predator_combo[i]:
-                                        #print('True')
-                                        if self.config.distance_type == 'last':
-                                            self.reward[i] += self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
-                                        if self.config.distance_type == 'average':
-                                            if len(self.distances[i])>0:
-                                                self.reward[i] += self.rewards['distance'] * np.mean(self.distances[i])
-                                            else:
-                                                self.reward[i] += self.rewards['distance'] * 0
-                                            
+                                    if self.positions[j]['agent'] == self.prey_predator_combo[i]:            
+                                        distances = []
+                                        for k in range(self.total_agents):
+                                            if self.positions[k]['agent'] == i:
+                                                distances.append(np.sqrt((self.positions[i]['position'][0] - self.positions[k]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[k]['position'][1])**2))           
+                                        self.reward[i] += self.rewards['distance'] * np.mean(distances)        
                                     # if i is a prey and j is a predator, then the prey gets a reward for the distance between them
                                     if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
                                         if self.config.distance_type == 'last':
