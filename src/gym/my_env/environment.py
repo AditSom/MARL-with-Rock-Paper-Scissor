@@ -155,19 +155,31 @@ class Environment:
               self.done = True
               self.winner = self.eliminated_record.index(False)
               #print(f"Agent {self.winner} wins")
-                    
+
+    def distance_update(self):
+        """Update the distances between agents."""
+        for i in range(self.total_agents):
+            if i not in self.captured_agents:
+                for j in range(self.total_agents):
+                    if j not in self.captured_agents:
+                        if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
+                            self.distances[i].extend([-1*np.sqrt((self.positions[i]['position'][0] - self.positions[j]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[j]['position'][1])**2)])
+                        if self.positions[j]['agent'] == self.prey_predator_combo[self.positions[i]['agent']]:
+                            self.distances[i].extend([np.sqrt((self.positions[i]['position'][0] - self.positions[j]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[j]['position'][1])**2)])
+
+
+
     def reward_update(self):
         """Update the rewards for each agent."""
         self.reward = [0] * self.n_agents
         if self.config.distance:
             if self.config.distance_type == 'average':
-                for i in range(self.total_agents):
-                    if i not in self.captured_agents:
-                        for j in range(self.total_agents):
-                            if j not in self.captured_agents:
-                                if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
-                                    self.distances[i].extend([np.sqrt((self.positions[i]['position'][0] - self.positions[j]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[j]['position'][1])**2)])
+                self.distance_update()
+            if self.config.distance_type == 'last' and self.done:
+                self.distance_update()
+
         if self.done:
+            
             for i in range(self.n_agents):
                 if i == self.winner:
                     self.reward[i] = self.rewards['win']
@@ -177,30 +189,15 @@ class Environment:
                         self.reward[i] = self.rewards['win'] 
                     else:
                         self.reward[i] = self.rewards['lose']
-                if self.config.distance:
-                    if self.config.distance_type == 'average':
-                        
-                        if len(self.distances[i])>0:
-                            self.reward[i] += self.rewards['distance'] * np.mean(self.distances[i])
-                        else:
-                            self.reward[i] += self.rewards['distance'] * 0
-                    if self.config.distance_type == 'last':
-                            for j in range(self.total_agents):
-                                if j not in self.captured_agents:
-                                    # print(self.positions[j]['agent'],self.prey_predator_combo[i])
-                                    if self.positions[j]['agent'] == self.prey_predator_combo[i]:            
-                                        distances = []
-                                        for k in range(self.total_agents):
-                                            if self.positions[k]['agent'] == i:
-                                                distances.append(np.sqrt((self.positions[i]['position'][0] - self.positions[k]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[k]['position'][1])**2))           
-                                        self.reward[i] += self.rewards['distance'] * np.mean(distances)        
-                                    # if i is a prey and j is a predator, then the prey gets a reward for the distance between them
-                                    if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
-                                        if self.config.distance_type == 'last':
-                                            self.reward[i] += -1*self.rewards['distance'] * (abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))
-                                        if self.config.distance_type == 'average':
-                                            self.reward[i] += -1*self.rewards['distance'] * np.mean(self.distances[i])
-        else:
+
+
+            if self.config.distance:
+                for i in range(self.total_agents):
+                    if len(self.distances[i])>0:
+                        self.reward[self.positions[i]['agent']] += self.rewards['distance'] * np.mean(self.distances[i])
+                    else:
+                        self.reward[self.positions[i]['agent']] += self.rewards['distance'] * 0
+
             for i in range(self.n_agents):
                 if self.prey_predator_combo[i]!='None':
                     self.reward[i] = self.capture_record[0][i] * self.rewards['captured'] +self.capture_record[1][i] * self.rewards['eliminated']+self.rewards['step']
