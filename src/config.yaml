@@ -17,8 +17,8 @@ fps: 3  # Faster frame rate for animation
 position_random: True  # Disable random positions
 capture: False  # Prey is eliminated, not captured
 # Training Hyperparameters
-n_actions: 4
-num_episodes: 1
+n_actions: 5
+num_episodes: 10000
 max_steps: 15
 model: "dqn"
 hidden_dim: [64, 128, 256, 128, 64]

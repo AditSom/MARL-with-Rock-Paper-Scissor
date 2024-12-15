@@ -163,16 +163,16 @@ class Environment:
                 for j in range(self.total_agents):
                     if j not in self.captured_agents:
                         if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
-                            print('Prey Distance update')
-                            print(self.positions[i]['agent'],self.prey_predator_combo[self.positions[j]['agent']])
-                            print(self.positions[i]['position'],self.positions[j]['position'])
-                            print('End Distance update')
+                            # print('Prey Distance update')
+                            # print(self.positions[i]['agent'],self.prey_predator_combo[self.positions[j]['agent']])
+                            # print(self.positions[i]['position'],self.positions[j]['position'])
+                            # print('End Distance update')
                             self.distances[i].extend([-1*(abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))])
                         if self.positions[j]['agent'] == self.prey_predator_combo[self.positions[i]['agent']]:
-                            print('Predator Distance update')
-                            print(self.positions[i]['agent'],self.prey_predator_combo[self.positions[j]['agent']])
-                            print(self.positions[i]['position'],self.positions[j]['position'])
-                            print('End Distance update')
+                            # print('Predator Distance update')
+                            # print(self.positions[i]['agent'],self.prey_predator_combo[self.positions[j]['agent']])
+                            # print(self.positions[i]['position'],self.positions[j]['position'])
+                            # print('End Distance update')
                             self.distances[i].extend([abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1])])
 
 
@@ -203,9 +203,9 @@ class Environment:
             if self.config.distance:
                 for i in range(self.total_agents):
                     if len(self.distances[i])>0:
-                        print(self.distances[i])
-                        print(np.mean(self.distances[i]))
-                        print(i)
+                        # print(self.distances[i])
+                        # print(np.mean(self.distances[i]))
+                        # print(i)
                         self.reward[self.positions[i]['agent']] += self.rewards['distance'] * np.mean(self.distances[i])
                     else:
                         self.reward[self.positions[i]['agent']] += self.rewards['distance'] * 0
