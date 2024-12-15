@@ -163,9 +163,17 @@ class Environment:
                 for j in range(self.total_agents):
                     if j not in self.captured_agents:
                         if self.positions[i]['agent'] == self.prey_predator_combo[self.positions[j]['agent']]:
-                            self.distances[i].extend([-1*np.sqrt((self.positions[i]['position'][0] - self.positions[j]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[j]['position'][1])**2)])
+                            print('Prey Distance update')
+                            print(self.positions[i]['agent'],self.prey_predator_combo[self.positions[j]['agent']])
+                            print(self.positions[i]['position'],self.positions[j]['position'])
+                            print('End Distance update')
+                            self.distances[i].extend([-1*(abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1]))])
                         if self.positions[j]['agent'] == self.prey_predator_combo[self.positions[i]['agent']]:
-                            self.distances[i].extend([np.sqrt((self.positions[i]['position'][0] - self.positions[j]['position'][0])**2 + (self.positions[i]['position'][1] - self.positions[j]['position'][1])**2)])
+                            print('Predator Distance update')
+                            print(self.positions[i]['agent'],self.prey_predator_combo[self.positions[j]['agent']])
+                            print(self.positions[i]['position'],self.positions[j]['position'])
+                            print('End Distance update')
+                            self.distances[i].extend([abs(self.positions[i]['position'][0] - self.positions[j]['position'][0]) + abs(self.positions[i]['position'][1] - self.positions[j]['position'][1])])
 
 
 
@@ -174,6 +182,7 @@ class Environment:
         self.reward = [0] * self.n_agents
         if self.config.distance:
             if self.config.distance_type == 'average':
+                print('Average Distance update')
                 self.distance_update()
             if self.config.distance_type == 'last' and self.done:
                 self.distance_update()
@@ -194,6 +203,9 @@ class Environment:
             if self.config.distance:
                 for i in range(self.total_agents):
                     if len(self.distances[i])>0:
+                        print(self.distances[i])
+                        print(np.mean(self.distances[i]))
+                        print(i)
                         self.reward[self.positions[i]['agent']] += self.rewards['distance'] * np.mean(self.distances[i])
                     else:
                         self.reward[self.positions[i]['agent']] += self.rewards['distance'] * 0
@@ -276,6 +288,7 @@ class Environment:
             self.done = True
             if ep > 5000:
                 ani = self.config.max_step_ani
+        print(timestep, self.done)
         self.reward_update()
         if self.config.animation:
             self.store_positions.append(copy.deepcopy(self.positions))
