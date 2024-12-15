@@ -182,7 +182,7 @@ class Environment:
         self.reward = [0] * self.n_agents
         if self.config.distance:
             if self.config.distance_type == 'average':
-                print('Average Distance update')
+                
                 self.distance_update()
             if self.config.distance_type == 'last' and self.done:
                 self.distance_update()
@@ -288,7 +288,7 @@ class Environment:
             self.done = True
             if ep > 5000:
                 ani = self.config.max_step_ani
-        print(timestep, self.done)
+        # print(timestep, self.done)
         self.reward_update()
         if self.config.animation:
             self.store_positions.append(copy.deepcopy(self.positions))
