@@ -1,5 +1,5 @@
 grid_size: 5  # Overriding the default grid size to 15x15
-agents: [1,1]  # 4 agents of type 0 and 3 agents of type 1
+agents: [2,2]  # 4 agents of type 0 and 3 agents of type 1
 prey_predator_combo:
   0: 1  # Type 1 can capture Type 0
   1: None  # Type 0 can capture Type 1

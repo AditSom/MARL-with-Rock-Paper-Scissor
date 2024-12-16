@@ -46,6 +46,9 @@ class training:
                                 state = self.inject_distance(state,counter)
                             self.actions.append(agent.select_action(flatten_positions(state,self.config.distance_input))[0])
                             q_tracker.append(agent.select_action(flatten_positions(state,self.config.distance_input))[1])
+                        else:
+                            self.actions.append(-1)
+                            q_tracker.append(0)
                         counter += 1
         self.q_tracker.append(q_tracker)
         return self.actions
