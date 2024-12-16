@@ -281,9 +281,9 @@ class Environment:
         self.prev_positions = copy.deepcopy(self.positions)
         for i in range(self.total_agents):
             if i not in self.captured_agents:
-                print(i)
-                print(action_list) 
-                print(self.captured_agents)
+                # print(i)
+                # print(action_list) 
+                # print(self.captured_agents)
                 self.action_update(action_list[i], i)
         self.capture_check(timestep)
         ani = False
