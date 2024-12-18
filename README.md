@@ -41,7 +41,7 @@ README.md
 - **src/models/get_model.py**: Utility functions to retrieve model instances.
 - **README.md**: Provides an overview and instructions for the library.
 
-The controls for simulations are described [here!](https://github.com/AditSom/MARL-with-Rock-Paper-Scissor/blob/main/src/Config_README.md)
+The controls for simulations are described in the [README](https://github.com/AditSom/MARL-with-Rock-Paper-Scissor/blob/main/src/Config_README.md) for the Config file!
 
 
 ## Demonstartion of Our Results
