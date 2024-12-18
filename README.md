@@ -42,10 +42,17 @@ README.md
 
 ## Demonstartion of Our Results
 
-<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-  <img src="assets/animation_batch_314.gif" alt="Training Results for single predator and single prey" style="width: 48%;">
-  <img src="assets/animation_batch_674.gif" alt="Training Results for single predator and single prey" style="width: 48%;">
-</div>
+<table style="width: 100%; table-layout: fixed;">
+  <tr>
+    <td style="width: 50%; text-align: center;">
+      <img src="assets/animation_batch_314.gif" alt="Training Results for single predator and single prey" style="width: 100%;">
+    </td>
+    <td style="width: 50%; text-align: center;">
+      <img src="assets/animation_batch_674.gif" alt="Training Results for single predator and single prey" style="width: 100%;">
+    </td>
+  </tr>
+</table>
+
 
 
 
