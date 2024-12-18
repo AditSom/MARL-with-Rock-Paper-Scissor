@@ -1,6 +1,6 @@
 # MARL with Rock-Paper-Scissor
 
-We provide a library for a multi species multi-agent reinforcement learning (MARL) using Deep Q-Networks (DQN) applied to the battle arena game style of of Rock-Paper-Scissors.
+We provide a library for a multi species multi-agent reinforcement learning (MARL) using Deep Q-Networks (DQN) applied to the battle arena game of Rock-Paper-Scissors.
 
 ## Project Structure
 
