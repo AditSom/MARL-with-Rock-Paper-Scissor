@@ -38,7 +38,7 @@ README.md
 - **src/gym/my_env/environment.py**: Defines the Rock-Paper-Scissors environment logic.
 - **src/models/dqn.py**: Implementation of the Deep Q-Network model.
 - **src/models/get_model.py**: Utility functions to retrieve model instances.
-- **README.md**: Provides an overview and instructions for the project.
+- **README.md**: Provides an overview and instructions for the library.
 
 ## Installation
 
