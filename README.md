@@ -1,8 +1,8 @@
 # MARL with Rock-Paper-Scissor
 
-This repository is a project for multi-agent reinforcement learning (MARL) using Deep Q-Networks (DQN) applied to the game of Rock-Paper-Scissors.
+This repository is a library for multi-agent reinforcement learning (MARL) using Deep Q-Networks (DQN) applied to the game of Rock-Paper-Scissors.
 
-## Project Structure
+## library Structure
 
 ```
 resources/
@@ -28,7 +28,7 @@ README.md
 ## Code File Descriptions
 
 - **src/args.py**: Handles command-line argument parsing for training and testing.
-- **src/config.yaml**: Contains configuration parameters for the project.
+- **src/config.yaml**: Contains configuration parameters for the library.
 - **src/test.py**: Script for testing the trained models.
 - **src/train.py**: Script for training the agents.
 - **src/gym/\_\_init\_\_.py**: Initializes the custom Gym environments.
@@ -38,7 +38,15 @@ README.md
 - **src/gym/my_env/environment.py**: Defines the Rock-Paper-Scissors environment logic.
 - **src/models/dqn.py**: Implementation of the Deep Q-Network model.
 - **src/models/get_model.py**: Utility functions to retrieve model instances.
-- **README.md**: Provides an overview and instructions for the project.
+- **README.md**: Provides an overview and instructions for the library.
+
+## Demonstartion of Our Results
+
+![Training Results for single predator and single prey](assets\animation_batch_314.gif)
+
+![Training Results for single predator and single prey](assets\animation_batch_674.gif)
+
+
 
 ## Installation
 
@@ -48,7 +56,7 @@ README.md
     git clone https://github.com/yourusername/MARL-with-Rock-Paper-Scissor.git
     ```
 
-2. Navigate to the project directory:
+2. Navigate to the library directory:
 
     ```bash
     cd MARL-with-Rock-Paper-Scissor

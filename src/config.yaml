@@ -4,7 +4,7 @@
 grid_size: 5  # Overriding the default grid size to 5x5
 
 # Agent settings
-agents: [2,2]  # 2 agents of type 0 and 2 agents of type 1
+agents: [1,1]  # 2 agents of type 0 and 2 agents of type 1
 
 # Prey-predator relationship
 prey_predator_combo:
@@ -19,7 +19,7 @@ reward:
   eliminated: -1  # Penalty for being eliminated
   step: -0.1      # Penalty for each step taken
   prey_step: 0.1  # Penalty for each step taken by the prey
-  distance: -0.1  # Penalty for each unit distance
+  distance: -1  # Penalty for each unit distance
   boundary: -0.1  # Penalty for hitting the boundary
 
 # Animation settings
