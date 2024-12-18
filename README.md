@@ -40,6 +40,13 @@ README.md
 - **src/models/get_model.py**: Utility functions to retrieve model instances.
 - **README.md**: Provides an overview and instructions for the library.
 
+## Demonstartion of Our Results
+
+![Training Results for single predator and single prey](assets\animation_batch_314.gif)
+
+![Training Results for single predator and single prey](assets\animation_batch_674.gif)
+
+
 ## Installation
 
 1. Clone the repository:
