@@ -12,6 +12,7 @@ src/
 ├── config.yaml
 ├── test.py
 ├── train.py
+├── Config_README.md
 ├── gym/
 │   ├── __init__.py
 │   ├── test.py
