@@ -42,9 +42,9 @@ README.md
 
 ## Demonstartion of Our Results
 
-![Training Results for single predator and single prey](assets\animation_batch_314.gif)
+![Training Results for single predator and single prey](assets/animation_batch_314.gif)
 
-![Training Results for single predator and single prey](assets\animation_batch_674.gif)
+![Training Results for single predator and single prey](assets/animation_batch_674.gif)
 
 
 ## Installation
