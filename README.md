@@ -1,34 +1,83 @@
-# MARL-with-Rock-Paper-Scissor
-## Introduction
+# MARL with Rock-Paper-Scissor
 
-This repository contains an implementation of Multi-Agent Reinforcement Learning (MARL) using the Rock-Paper-Scissors game. It demonstrates how multiple agents can learn optimal strategies through competition and adaptation.
+This repository is a project for multi-agent reinforcement learning (MARL) using Deep Q-Networks (DQN) applied to the game of Rock-Paper-Scissors.
 
-## Features
+## Project Structure
 
-- Multi-agent environment for Rock-Paper-Scissors
-- Customizable agent strategies
-- Visualization of learning progress
+```
+resources/
+scripts/
+src/
+├── args.py
+├── config.yaml
+├── test.py
+├── train.py
+├── gym/
+│   ├── __init__.py
+│   ├── test.py
+│   └── my_env/
+│       ├── __init__.py
+│       ├── config.py
+│       └── environment.py
+├── models/
+│   ├── dqn.py
+│   ├── get_model.py
+README.md
+```
+
+## Code File Descriptions
+
+- **src/args.py**: Handles command-line argument parsing for training and testing.
+- **src/config.yaml**: Contains configuration parameters for the project.
+- **src/test.py**: Script for testing the trained models.
+- **src/train.py**: Script for training the agents.
+- **src/gym/\_\_init\_\_.py**: Initializes the custom Gym environments.
+- **src/gym/test.py**: Tests the custom Gym environment independently.
+- **src/gym/my_env/\_\_init\_\_.py**: Initializes the custom Rock-Paper-Scissors environment module.
+- **src/gym/my_env/config.py**: Configuration settings for the custom environment.
+- **src/gym/my_env/environment.py**: Defines the Rock-Paper-Scissors environment logic.
+- **src/models/dqn.py**: Implementation of the Deep Q-Network model.
+- **src/models/get_model.py**: Utility functions to retrieve model instances.
+- **README.md**: Provides an overview and instructions for the project.
 
 ## Installation
 
-Install the required dependencies:
+1. Clone the repository:
 
-```bash
-pip install -r requirements.txt
-```
+    ```bash
+    git clone https://github.com/yourusername/MARL-with-Rock-Paper-Scissor.git
+    ```
+
+2. Navigate to the project directory:
+
+    ```bash
+    cd MARL-with-Rock-Paper-Scissor
+    ```
+
+3. Install the required packages:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
-Run the main script to start the simulation:
+### Training
+
+Run the training script:
 
 ```bash
-python main.py
+python src/train.py --config src/config.yaml
 ```
 
-## Contributing
+### Testing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Run the test script:
 
-## License
+```bash
+python src/test.py --config src/config.yaml
+```
 
-This project is licensed under the MIT License.
+## Configuration
+
+Modify the `config.yaml` file to adjust training parameters and settings.

@@ -1,36 +1,74 @@
-grid_size: 5  # Overriding the default grid size to 15x15
-agents: [2,2]  # 4 agents of type 0 and 3 agents of type 1
+# Configuration file for MARL with Rock-Paper-Scissor
+
+# Grid settings
+grid_size: 5  # Overriding the default grid size to 5x5
+
+# Agent settings
+agents: [2,2]  # 2 agents of type 0 and 2 agents of type 1
+
+# Prey-predator relationship
 prey_predator_combo:
   0: 1  # Type 1 can capture Type 0
-  1: None  # Type 0 can capture Type 1
+  1: None  # Type 0 cannot capture Type 1
+
+# Reward settings
 reward:
-  win: 1      # Increased reward for winning
-  lose: -1      # Increased penalty for losing
-  captured: 1    # Increased reward for capturing
-  eliminated: -1  # Increased penalty for elimination
-  step: -0.1        # Increased penalty for each step
-  prey_step: 0.1   # Increased penalty for each step of the prey
-  distance: -0.1    # Increased penalty for each unit distance
-  boundary: -0.1    # Increased penalty for hitting the boundary
-animation: True  # Disable animation
-fps: 3  # Faster frame rate for animation
-position_random: True  # Disable random positions
+  win: 1          # Reward for winning
+  lose: -1        # Penalty for losing
+  captured: 1     # Reward for capturing
+  eliminated: -1  # Penalty for being eliminated
+  step: -0.1      # Penalty for each step taken
+  prey_step: 0.1  # Penalty for each step taken by the prey
+  distance: -0.1  # Penalty for each unit distance
+  boundary: -0.1  # Penalty for hitting the boundary
+
+# Animation settings
+animation: True  # Enable animation
+fps: 3  # Frame rate for animation
+
+# Position settings
+position_random: True  # Enable random positions
+
+# Capture settings
 capture: False  # Prey is eliminated, not captured
+
 # Training Hyperparameters
-n_actions: 5
-num_episodes: 10000
-max_steps: 15
-model: "dqn"
-hidden_dim: [64, 128, 256, 128, 64]
-save_path: "results/" # Put the absolute path to the experiments folder
+n_actions: 5  # Number of possible actions
+num_episodes: 10000  # Number of training episodes
+max_steps: 15  # Maximum steps per episode
+model: "dqn"  # Model type
+hidden_dim: [64, 128, 256, 128, 64]  # Hidden layer dimensions
+
+# Save path for results
+save_path: "results/"  # Absolute path to the experiments folder
+
+# Tag for the experiment
 tag: "trial_57"
-config_file: "src/config.yaml"  # Path to the custom config file
+
+# Path to the custom config file
+config_file: "src/config.yaml"
+
+# Plot settings
 smooth_plot: True  # Smooth the training plot
+
+# Animation batch size
 ani_batch_size: 50  # Batch size for animation
+
+# Distance settings
 distance: True
-distance_type: "average" # "average" or "last"
-max_step_ani: True # If you want to animate the max step
+distance_type: "average"  # Type of distance calculation: "average" or "last"
+
+# Animation settings for max step
+max_step_ani: True  # Animate the max step
+
+# Boundary settings
 boundary: True
+
+# Distance input settings
 distance_input: True
+
+# Experience replay settings
 experience_replay: True
+
+# Batch size for training
 batch_size: 32
