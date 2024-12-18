@@ -42,13 +42,11 @@ README.md
 
 ## Demonstartion of Our Results
 
-![Training Results for single predator and single prey](assets/animation_batch_314.gif)
-![Training Results for single predator and single prey](assets/animation_batch_674.gif)
-
-<div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="assets/animation_batch_314.gif" alt="Training Results for single predator and single prey" width="300">
-  <img src="assets/animation_batch_674.gif" alt="Training Results for single predator and single prey" width="300">
+<div style="display: flex; justify-content: space-between; width: 100%;">
+  <img src="assets/animation_batch_314.gif" alt="Training Results for single predator and single prey" style="width: 48%;">
+  <img src="assets/animation_batch_674.gif" alt="Training Results for single predator and single prey" style="width: 48%;">
 </div>
+
 
 
 ## Installation
